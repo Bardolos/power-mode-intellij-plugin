@@ -152,12 +152,11 @@ object ImageUtil {
     finally target.close()
   }
 
-  lazy val fireUrls = (1 to 25)
-    .map(i => if (i > 9) s"$i" else s"0$i")
+  lazy val fireUrls = (0 to 89)
     .map { i =>
       mkTmpImg(
         classOf[PowerFlame].getResourceAsStream(
-          s"/fire/animated/256/fire1_ $i.png"))
+          s"/fire/animated/hit/_a_frm$i,100.png"))
     }
     .toList
 
