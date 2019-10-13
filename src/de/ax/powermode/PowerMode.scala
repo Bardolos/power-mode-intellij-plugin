@@ -69,7 +69,7 @@ object PowerMode {
 class PowerMode
     extends ApplicationComponent
     with PersistentStateComponent[PowerMode]  {
-  var hotkeyHeatup: Boolean = true
+  var hotkeyHeatup: Boolean = false
 
   var bamLife: Long = 1000
 
@@ -77,9 +77,9 @@ class PowerMode
 
   var gravityFactor: Double = 21.21
 
-  var sparkVelocityFactor: Double = 4.36
+  var sparkVelocityFactor: Double = 50
 
-  var sparkSize = 3
+  var sparkSize = 5
 
   var sparksEnabled = true
 
@@ -91,9 +91,9 @@ class PowerMode
 
   def getFrameRate() = frameRate
 
-  var maxFlameSize = 100
+  var maxFlameSize = 85
 
-  var maxFlameLife = 2000
+  var maxFlameLife = 400
 
   var heatupTime = 10000
 
@@ -103,17 +103,17 @@ class PowerMode
 
   var keyStrokesPerMinute = 300
   var heatupFactor = 1.0
-  var sparkLife = 3000
+  var sparkLife = 1250
   var sparkCount = 10
-  var shakeRange = 4
+  var shakeRange = 2
   var flamesEnabled: Boolean = true
   var maybeElementOfPowerContainerManager =
     Option.empty[ElementOfPowerContainerManager]
   private var enabled: Boolean = true
   private var shakeEnabled: Boolean = true
-  var isBamEnabled: Boolean = true
+  var isBamEnabled: Boolean = false
   var isSoundsPlaying = false
-  var powerIndicatorEnabled = true
+  var powerIndicatorEnabled = false
 
   def isHotkeyHeatup = hotkeyHeatup
 
@@ -122,7 +122,7 @@ class PowerMode
   }
 
   def flameImageFolder = {
-    if (!_isCustomFlameImages) Some(new File("fire/animated/256"))
+    if (!_isCustomFlameImages) Some(new File("fire/animated/hit"))
     else customFlameImageFolder
   }
 
@@ -135,18 +135,10 @@ class PowerMode
       keyStroke: Option[KeyStroke] = Option.empty[KeyStroke]): Unit = {
     val ct = System.currentTimeMillis()
     lastKeys = (keyStroke, ct) :: filterLastKeys(ct)
-    dataContext.foreach(dc =>
-      maybeElementOfPowerContainerManager.foreach(_.showIndicator(dc)))
 
   }
   val mediaPlayerExists = Try {
-    Class.forName("javafx.scene.media.MediaPlayer")
-  }
-
-  def reduceHeatup: Unit = {
-    val ct = System.currentTimeMillis()
-    lastKeys = filterLastKeys(ct)
-    //    maybeElementOfPowerContainerManager.map(_.showIndicator)
+    false
   }
 
   private def filterLastKeys(ct: Long): List[HeatupKey] = {
@@ -363,19 +355,19 @@ PowerMode.logger.debug("initComponent...")
     sparkVelocityFactor = f
   }
 
-  var redFrom: Int = 200
+  var redFrom: Int = 100
 
   def getRedFrom: Int = {
     redFrom
   }
 
-  var redTo: Int = 255
+  var redTo: Int = 165
 
   def getRedTo: Int = {
     return redTo
   }
 
-  var greenTo: Int = 255
+  var greenTo: Int = 0
 
   def getGreenTo: Int = {
     return greenTo
@@ -393,7 +385,7 @@ PowerMode.logger.debug("initComponent...")
     return blueFrom
   }
 
-  var blueTo: Int = 103
+  var blueTo: Int = 0
 
   def getBlueTo: Int = {
     return blueTo

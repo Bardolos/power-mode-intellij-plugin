@@ -27,7 +27,6 @@ import de.ax.powermode.power.ElementOfPower
 import de.ax.powermode.power.element.{
   PowerBam,
   PowerFlame,
-  PowerIndicator,
   PowerSpark
 }
 
@@ -102,10 +101,12 @@ class ElementOfPowerContainer(editor: Editor)
           }
           if (lastPositions.nonEmpty) {
             val myLastPositions = lastPositions
-            SwingUtilities.invokeLater(() => {
-              myLastPositions.foreach {
-                case (a, b) =>
-                  initializeAnimation(a, new Point(b.x, b.y), width)
+            SwingUtilities.invokeLater(new Runnable() {
+              def run() {
+                myLastPositions.foreach {
+                  case (a, b) =>
+                    initializeAnimation(a, new Point(b.x, b.y), width)
+                }
               }
             })
           }
@@ -133,14 +134,6 @@ class ElementOfPowerContainer(editor: Editor)
   }
 
   def addPowerIndicator(): Unit = {
-    val indicatorWidth = 100
-    elementsOfPower :+= (PowerIndicator(
-      getMyBounds.width - 20 - indicatorWidth,
-      getMyBounds.height - 20 - indicatorWidth,
-      indicatorWidth,
-      indicatorWidth,
-      1000,
-      editor), getScrollPosition)
   }
 
   def initializeAnimation(point: Point) {
@@ -185,18 +178,11 @@ class ElementOfPowerContainer(editor: Editor)
       ((math.random * powerMode.maxFlameSize * (1 - base)) * powerMode.valueFactor)).toInt
     val initLife = (powerMode.maxFlameLife * powerMode.valueFactor).toInt
     if (initLife > 100) {
-      elementsOfPower :+= (PowerFlame(point.x + 5,
-                                      point.y - 1,
+      elementsOfPower :+= (PowerFlame(point.x,
+                                      point.y,
                                       wh,
                                       wh,
-                                      initLife,
-                                      true), getScrollPosition)
-      elementsOfPower :+= (PowerFlame(point.x + 5,
-                                      point.y + 15,
-                                      wh,
-                                      wh,
-                                      initLife,
-                                      false), getScrollPosition)
+                                      initLife), getScrollPosition)
     }
   }
 

@@ -17,18 +17,8 @@ package de.ax.powermode.power.management
 
 import java.awt._
 
-import com.intellij.openapi.actionSystem.{
-  DataConstants,
-  DataContext,
-  PlatformDataKeys
-}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.event.{
-  EditorFactoryAdapter,
-  EditorFactoryEvent
-}
-import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.editor.event.{EditorFactoryAdapter, EditorFactoryEvent}
 import de.ax.powermode.power.sound.PowerSound
 import de.ax.powermode.{Power, PowerMode, Util}
 import javax.swing._
@@ -37,8 +27,8 @@ import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 /**
-  * @author Baptiste Mesta
-  */
+ * @author Baptiste Mesta
+ */
 class ElementOfPowerContainerManager extends EditorFactoryAdapter with Power {
   def ForceTry[X](f: => X): Try[X] = {
     try {
@@ -62,33 +52,11 @@ class ElementOfPowerContainerManager extends EditorFactoryAdapter with Power {
     }
   lazy val sound = triedSound
 
-  def showIndicator(dataContext: DataContext) {
-    if (powerMode.powerIndicatorEnabled && powerMode.isEnabled) {
-      val maybeProject: Seq[Project] = Seq(ForceTry {
-        dataContext.getData(DataConstants.PROJECT)
-      }, ForceTry {
-        dataContext.getData(PlatformDataKeys.PROJECT_CONTEXT)
-      }).toStream.flatMap(o =>
-        o.toOption.flatMap(Option(_)).map(_.asInstanceOf[Project]))
-      maybeProject.headOption.foreach(p => {
-        val textEditor: Editor =
-          FileEditorManager.getInstance(p).getSelectedTextEditor
-        SwingUtilities.invokeLater(() => {
-          elementsOfPowerContainers
-            .get(textEditor)
-            .foreach(_.addPowerIndicator())
-        })
-      })
-    }
-  }
-
   val elementsOfPowerUpdateThread = new Thread(new Runnable() {
     def run {
       while (true) {
         try {
           if (powerMode != null) {
-            powerMode.reduceHeatup
-            updateSound
             updateContainers
             try {
               Thread.sleep(1000 / powerMode.frameRate)
@@ -106,28 +74,6 @@ class ElementOfPowerContainerManager extends EditorFactoryAdapter with Power {
       elementsOfPowerContainers.values.foreach(_.updateElementsOfPower())
     }
 
-    var soundErrorLogged = System.currentTimeMillis()
-
-    def updateSound: Unit = {
-      try {
-        if (powerMode.isEnabled &&
-            powerMode.soundsFolder.exists(f => f.exists() && f.isDirectory)
-            && powerMode.isSoundsPlaying) {
-          if (sound.isFailure && soundErrorLogged + 5000 < System
-                .currentTimeMillis()) {
-            logger.error(sound.failed.get.getMessage, sound.failed.get)
-            soundErrorLogged += 1
-          }
-          sound.foreach(_.play())
-        } else {
-          sound.foreach(_.stop())
-        }
-        sound.foreach(_.setVolume(powerMode.valueFactor))
-      } catch {
-        case e: Throwable =>
-          logger.error(e.getMessage, e)
-      }
-    }
   })
   elementsOfPowerUpdateThread.start()
 
